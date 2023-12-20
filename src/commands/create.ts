@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import path from "path";
 import { Command } from "commander";
-import { validateProjectIntegrity } from "../utils/integrityUtils";
+import { validateMigrationsFolderIntegrity } from "../utils/integrityUtils";
 import { validateStringParameter } from "../utils/validationUtils";
 
 export const create = (program: Command): void => {
@@ -11,10 +11,10 @@ export const create = (program: Command): void => {
     .action((migrationName: string) => {
       const currentDirectory = process.cwd();
 
-      const initialIntegrityValidationMessage =
-        validateProjectIntegrity(currentDirectory);
-      if (initialIntegrityValidationMessage != "") {
-        console.error(initialIntegrityValidationMessage);
+      const migrationsFolderValidationIntegrityMessage =
+        validateMigrationsFolderIntegrity(currentDirectory);
+      if (migrationsFolderValidationIntegrityMessage != "") {
+        console.error(migrationsFolderValidationIntegrityMessage);
         return;
       }
 

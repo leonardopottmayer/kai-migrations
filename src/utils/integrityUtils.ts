@@ -17,7 +17,9 @@ export const validateProjectIntegrity = (projectPath: string): string => {
   return "";
 };
 
-const validateMigrationsFolderIntegrity = (projectPath: string): string => {
+export const validateMigrationsFolderIntegrity = (
+  projectPath: string
+): string => {
   const migrationsFolderPath = path.join(projectPath, "migrations");
 
   const fileExists = fs.existsSync(migrationsFolderPath);
@@ -25,12 +27,38 @@ const validateMigrationsFolderIntegrity = (projectPath: string): string => {
   return fileExists ? "" : "Migrations folder does not exist.";
 };
 
-const validateConfigFileIntegrity = (projectPath: string): string => {
+export const validateConfigFileIntegrity = (projectPath: string): string => {
   const configFilePath = path.join(projectPath, "kai-config.json");
 
   if (!fs.existsSync(configFilePath)) {
     return "Config File does not exist.";
   }
+
+  try {
+    const configFileContent = JSON.parse(
+      fs.readFileSync(configFilePath, "utf-8")
+    ) as KaiConfigFile;
+
+    const mainSettingsIntegrityMessage =
+      validateConfigFileMainSettings(projectPath);
+    if (mainSettingsIntegrityMessage != "") {
+      return mainSettingsIntegrityMessage;
+    }
+
+    const environmentIntegrityMessage =
+      validateConfigFileEnvironmentsIntegrity(projectPath);
+    if (environmentIntegrityMessage != "") {
+      return environmentIntegrityMessage;
+    }
+
+    return "";
+  } catch (error) {
+    return "An error ocurred while trying to validate config file.";
+  }
+};
+
+export const validateConfigFileMainSettings = (projectPath: string) => {
+  const configFilePath = path.join(projectPath, "kai-config.json");
 
   try {
     const configFileContent = JSON.parse(
@@ -50,6 +78,22 @@ const validateConfigFileIntegrity = (projectPath: string): string => {
     ) {
       return "Invalid migrations table name in config file.";
     }
+
+    return "";
+  } catch (error) {
+    return "An error ocurred while trying to validate config file.";
+  }
+};
+
+export const validateConfigFileEnvironmentsIntegrity = (
+  projectPath: string
+): string => {
+  const configFilePath = path.join(projectPath, "kai-config.json");
+
+  try {
+    const configFileContent = JSON.parse(
+      fs.readFileSync(configFilePath, "utf-8")
+    ) as KaiConfigFile;
 
     if (
       !configFileContent.environments ||
