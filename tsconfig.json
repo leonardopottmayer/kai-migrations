@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2018" /* ECMAScript version to be generated. */,
+    "module": "commonjs" /* Module system to be used (Node.js uses "commonjs"). */,
+    "outDir": "./dist" /* Output directory for transpiled files. */,
+    "rootDir": "./src" /* Source directory for TypeScript files. */,
+    "strict": true /* Enables all strict type-checking options. */,
+    "esModuleInterop": true /* Allows importing CommonJS modules as ES6 namespaces. */,
+    "skipLibCheck": true /* Skips type checking of declaration files during compilation. */,
+    "forceConsistentCasingInFileNames": true /* Ensures consistent casing in file names. */,
+    "moduleResolution": "node" /* Module resolution for Node.js. */,
+    "declaration": true /* Generates declaration files (.d.ts). */,
+    "sourceMap": true /* Generates source map files (.map) for easier debugging. */
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules"]
+}
