@@ -33,7 +33,7 @@ const validateParameters = (projectName: string): boolean => {
 const createConfigFile = (projectName: string) => {
   const currentDirectory = process.cwd();
 
-  const initialEnvironment = new ConfigFileEnvironment("demo", "");
+  const initialEnvironment = new ConfigFileEnvironment("demo", "", "");
   const kaiConfig = new KaiConfigFile(projectName, "", [initialEnvironment]);
 
   const configFilePath = path.join(currentDirectory, "kai-config.json");

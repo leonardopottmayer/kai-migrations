@@ -8,6 +8,18 @@ export const validateProjectIntegrity = (projectPath: string): string => {
     return configFileIntegrityMessage;
   }
 
+  const configFileMainSettingsIntegrityMessage =
+    validateConfigFileMainSettings(projectPath);
+  if (configFileMainSettingsIntegrityMessage != "") {
+    return configFileMainSettingsIntegrityMessage;
+  }
+
+  const configFileEnvironmentsIntegrityMessage =
+    validateConfigFileEnvironmentsIntegrity(projectPath);
+  if (configFileEnvironmentsIntegrityMessage != "") {
+    return configFileEnvironmentsIntegrityMessage;
+  }
+
   const migrationsFolderIntegrityMessage =
     validateMigrationsFolderIntegrity(projectPath);
   if (migrationsFolderIntegrityMessage != "") {
@@ -107,9 +119,11 @@ export const validateConfigFileEnvironmentsIntegrity = (
         !environment.environmentName ||
         environment.environmentName.trim() === "" ||
         !environment.connectionString ||
-        environment.connectionString.trim() === ""
+        environment.connectionString.trim() === "" ||
+        !environment.databaseType ||
+        environment.databaseType.trim() === ""
       ) {
-        return "Invalid environment name or connection string in config file.";
+        return "Invalid environment name, connection string or database type in config file.";
       }
     }
 

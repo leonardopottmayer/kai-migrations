@@ -4,7 +4,7 @@ import { Command } from "commander";
 import { validateMigrationsFolderIntegrity } from "../utils/integrityUtils";
 import { validateStringParameter } from "../utils/validationUtils";
 
-export const create = (program: Command): void => {
+export const createCommand = (program: Command): void => {
   program
     .command("create <migrationName>")
     .description("Create a new migration.")

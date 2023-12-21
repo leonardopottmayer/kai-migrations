@@ -1,12 +1,14 @@
 import { Command, program } from "commander";
 import { initCommand } from "./commands/init";
-import { create } from "./commands/create";
+import { createCommand } from "./commands/create";
+import { applyCommand } from "./commands/apply";
 
 export function setupCli(): Command {
   program.version("1.0.0").description("Descrição do seu CLI");
 
   initCommand(program);
-  create(program);
+  createCommand(program);
+  applyCommand(program);
 
   return program;
 }
