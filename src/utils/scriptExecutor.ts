@@ -1,7 +1,7 @@
 import knex from "knex";
-import { ConfigFileEnvironment } from "../models/ConfigFileEnvironment";
+import { ConfigEnvironment } from "../models/ConfigEnvironment";
 
-export const buildDb = (environment: ConfigFileEnvironment) => {
+export const buildDb = (environment: ConfigEnvironment) => {
   const db = knex({
     client: environment.databaseType,
     connection: environment.connectionString,
@@ -11,7 +11,7 @@ export const buildDb = (environment: ConfigFileEnvironment) => {
 };
 
 export const executeSqlScripts = (
-  environment: ConfigFileEnvironment,
+  environment: ConfigEnvironment,
   sqlScripts: string[]
 ): void => {
   const db = buildDb(environment);
@@ -28,7 +28,7 @@ export const executeSqlScripts = (
 };
 
 export const executeSqlScript = (
-  environment: ConfigFileEnvironment,
+  environment: ConfigEnvironment,
   sqlScript: string
 ): void => {
   const db = buildDb(environment);

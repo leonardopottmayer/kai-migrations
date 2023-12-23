@@ -1,20 +1,25 @@
-export const validateStringParameter = (value: string): boolean => {
-  const containsSpecialCharacters = (str: string): boolean => {
-    const allowedSpecialCharacters = /[-_]/;
-    return !allowedSpecialCharacters.test(str);
-  };
-
-  const validateParameter = (paramValue: string): boolean => {
+export const validateStringParameter = (
+  isRequired: boolean,
+  value?: string
+): boolean => {
+  const validateParameters = (paramValue?: string) => {
     return (
       paramValue !== null &&
       paramValue !== undefined &&
       typeof paramValue === "string" &&
-      paramValue.trim() !== "" &&
-      !containsSpecialCharacters(paramValue)
+      paramValue.trim() !== ""
     );
   };
 
-  const isValidParameter = validateParameter(value);
+  let isValidParameter = true;
+
+  if (isRequired) {
+    isValidParameter = validateParameters(value);
+  } else {
+    if (value) {
+      isValidParameter = validateParameters(value);
+    }
+  }
 
   return isValidParameter;
 };

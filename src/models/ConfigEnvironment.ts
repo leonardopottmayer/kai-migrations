@@ -1,4 +1,4 @@
-export class ConfigFileEnvironment {
+export class ConfigEnvironment {
   environmentName: string;
   connectionString: string;
   databaseType: string;

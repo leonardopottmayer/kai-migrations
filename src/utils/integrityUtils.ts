@@ -1,120 +1,69 @@
 import * as fs from "fs";
 import * as path from "path";
-import { KaiConfigFile } from "../models/KaiConfigFile";
+import { getConfig } from "./configUtils";
 
-export const validateProjectIntegrity = (projectPath: string): string => {
-  const configFileIntegrityMessage = validateConfigFileIntegrity(projectPath);
-  if (configFileIntegrityMessage != "") {
-    return configFileIntegrityMessage;
-  }
+export const validateProjectIntegrity = (): void => {};
 
-  const configFileMainSettingsIntegrityMessage =
-    validateConfigFileMainSettings(projectPath);
-  if (configFileMainSettingsIntegrityMessage != "") {
-    return configFileMainSettingsIntegrityMessage;
-  }
-
-  const configFileEnvironmentsIntegrityMessage =
-    validateConfigFileEnvironmentsIntegrity(projectPath);
-  if (configFileEnvironmentsIntegrityMessage != "") {
-    return configFileEnvironmentsIntegrityMessage;
-  }
-
-  const migrationsFolderIntegrityMessage =
-    validateMigrationsFolderIntegrity(projectPath);
-  if (migrationsFolderIntegrityMessage != "") {
-    return migrationsFolderIntegrityMessage;
-  }
-
-  return "";
-};
-
-export const validateMigrationsFolderIntegrity = (
-  projectPath: string
-): string => {
-  const migrationsFolderPath = path.join(projectPath, "migrations");
-
-  const fileExists = fs.existsSync(migrationsFolderPath);
-
-  return fileExists ? "" : "Migrations folder does not exist.";
-};
-
-export const validateConfigFileIntegrity = (projectPath: string): string => {
-  const configFilePath = path.join(projectPath, "kai-config.json");
-
-  if (!fs.existsSync(configFilePath)) {
-    return "Config File does not exist.";
-  }
-
+export const validateConfigIntegrity = (): void => {
   try {
-    const configFileContent = JSON.parse(
-      fs.readFileSync(configFilePath, "utf-8")
-    ) as KaiConfigFile;
+    const config = getConfig();
 
-    const mainSettingsIntegrityMessage =
-      validateConfigFileMainSettings(projectPath);
-    if (mainSettingsIntegrityMessage != "") {
-      return mainSettingsIntegrityMessage;
-    }
-
-    const environmentIntegrityMessage =
-      validateConfigFileEnvironmentsIntegrity(projectPath);
-    if (environmentIntegrityMessage != "") {
-      return environmentIntegrityMessage;
-    }
-
-    return "";
+    validateConfigProjectNameIntegrity();
+    validateConfigMigrationsFolderIntegrity();
+    validateConfigMigrationsTableIntegrity();
+    validateConfigEnvironmentsIntegrity();
   } catch (error) {
-    return "An error ocurred while trying to validate config file.";
+    throw error;
   }
 };
 
-export const validateConfigFileMainSettings = (projectPath: string) => {
-  const configFilePath = path.join(projectPath, "kai-config.json");
-
+export const validateConfigProjectNameIntegrity = () => {
   try {
-    const configFileContent = JSON.parse(
-      fs.readFileSync(configFilePath, "utf-8")
-    ) as KaiConfigFile;
+    const config = getConfig();
 
-    if (
-      !configFileContent.projectName ||
-      configFileContent.projectName.trim() === ""
-    ) {
-      return "Invalid project name in config file.";
+    if (!config.projectName || config.projectName.trim() === "") {
+      throw new Error("Invalid project name in config file.");
     }
-
-    if (
-      !configFileContent.migrationsTable ||
-      configFileContent.migrationsTable.trim() === ""
-    ) {
-      return "Invalid migrations table name in config file.";
-    }
-
-    return "";
   } catch (error) {
-    return "An error ocurred while trying to validate config file.";
+    throw error;
   }
 };
 
-export const validateConfigFileEnvironmentsIntegrity = (
-  projectPath: string
-): string => {
-  const configFilePath = path.join(projectPath, "kai-config.json");
-
+export const validateConfigMigrationsFolderIntegrity = (): void => {
   try {
-    const configFileContent = JSON.parse(
-      fs.readFileSync(configFilePath, "utf-8")
-    ) as KaiConfigFile;
+    const config = getConfig();
 
-    if (
-      !configFileContent.environments ||
-      configFileContent.environments.length === 0
-    ) {
-      return "No environments in config file.";
+    if (!config.migrationsFolder || config.migrationsFolder.trim() === "") {
+      throw new Error("Invalid migrations folder in config file.");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const validateConfigMigrationsTableIntegrity = (): void => {
+  try {
+    const config = getConfig();
+
+    if (!config.migrationsTable || config.migrationsTable.trim() === "") {
+      throw new Error("Invalid migrations table in config file.");
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const validateConfigEnvironmentsIntegrity = (): void => {
+  try {
+    const config = getConfig();
+
+    if (!config.environments || config.environments.length === 0) {
+      throw new Error("No environments in config file.");
     }
 
-    for (const environment of configFileContent.environments) {
+    const environmentNamesSet = new Set<string>();
+
+    for (const environment of config.environments) {
       if (
         !environment.environmentName ||
         environment.environmentName.trim() === "" ||
@@ -123,12 +72,46 @@ export const validateConfigFileEnvironmentsIntegrity = (
         !environment.databaseType ||
         environment.databaseType.trim() === ""
       ) {
-        return "Invalid environment name, connection string or database type in config file.";
+        throw new Error(
+          "Invalid environment name, connection string, or database type in config file."
+        );
       }
-    }
 
-    return "";
+      if (environmentNamesSet.has(environment.environmentName)) {
+        throw new Error(
+          `Duplicate environment name found in config file: ${environment.environmentName}. Each environment must have a unique name.`
+        );
+      }
+
+      environmentNamesSet.add(environment.environmentName);
+    }
   } catch (error) {
-    return "An error ocurred while trying to validate config file.";
+    throw error;
   }
+};
+
+export const validateMigrationsFolderIntegrity = (): void => {
+  try {
+    const currentDirectory = process.cwd();
+    const config = getConfig();
+
+    const migrationsFolderPath = path.join(
+      currentDirectory,
+      config.migrationsFolder
+    );
+
+    const fileExists = fs.existsSync(migrationsFolderPath);
+
+    if (!fileExists) {
+      throw new Error(
+        `Migrations folder not found. Configured migrations folder name: ${config.migrationsFolder}`
+      );
+    }
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const validateMigrationsTableIntegrity = (): void => {
+  // GO TO THE DATABASE AND CHECK IF TABLE IS VALID
 };
