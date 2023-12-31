@@ -1,20 +1,11 @@
-import knex from "knex";
 import { ConfigEnvironment } from "../models/ConfigEnvironment";
-
-export const buildDb = (environment: ConfigEnvironment) => {
-  const db = knex({
-    client: environment.databaseType,
-    connection: environment.connectionString,
-  });
-
-  return db;
-};
+import { getDbInstance } from "./dbConnectionUtils";
 
 export const executeSqlScripts = (
   environment: ConfigEnvironment,
   sqlScripts: string[]
 ): void => {
-  const db = buildDb(environment);
+  const db = getDbInstance(environment);
 
   sqlScripts.forEach(async (script) => {
     db.raw(script)
@@ -31,7 +22,7 @@ export const executeSqlScript = (
   environment: ConfigEnvironment,
   sqlScript: string
 ): void => {
-  const db = buildDb(environment);
+  const db = getDbInstance(environment);
 
   db.raw(sqlScript)
     .catch((error) => {
