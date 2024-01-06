@@ -2,6 +2,7 @@ import { Command } from "commander";
 import { executeSqlScripts } from "../utils/scriptExecutor";
 import { getEnvironmentByName } from "../utils/configUtils";
 import { getAllMigrations } from "../utils/migrationUtils";
+import { validateMigrationsTableIntegrity } from "../utils/integrityUtils";
 
 export const applyCommand = (program: Command): void => {
   program
@@ -17,6 +18,7 @@ export const applyCommand = (program: Command): void => {
           return;
         }
 
+        validateMigrationsTableIntegrity(foundEnv);
         const migrationsScripts = getAllMigrations("up");
 
         executeSqlScripts(foundEnv, migrationsScripts);

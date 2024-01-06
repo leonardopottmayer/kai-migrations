@@ -1,6 +1,8 @@
 import * as fs from "fs";
 import * as path from "path";
 import { getConfig } from "./configUtils";
+import { executeSqlScript } from "./scriptExecutor";
+import { ConfigEnvironment } from "../models/ConfigEnvironment";
 
 export const validateProjectIntegrity = (): void => {};
 
@@ -112,6 +114,15 @@ export const validateMigrationsFolderIntegrity = (): void => {
   }
 };
 
-export const validateMigrationsTableIntegrity = (): void => {
-  // GO TO THE DATABASE AND CHECK IF TABLE IS VALID
+export const validateMigrationsTableIntegrity = (
+  environment: ConfigEnvironment
+): void => {
+  const tableSelectScript =
+    "select m.id, m.unique_id, m.migration_name, m.status, m.created_at from migrations m";
+
+  try {
+    executeSqlScript(environment, tableSelectScript);
+  } catch (error) {
+    throw error;
+  }
 };
