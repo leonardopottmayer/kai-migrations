@@ -1,6 +1,9 @@
 import * as fs from "fs";
 import path from "path";
 import { getConfig } from "./configUtils";
+import { MigrationDataDto } from "../models/MigrationDataDto";
+import { getMigrationByName } from "./migrationsTableUtils";
+import { ConfigEnvironment } from "../models/ConfigEnvironment";
 
 export const buildMigrationName = (inputName: string): string => {
   const currentTimestamp = Date.now();
@@ -48,7 +51,9 @@ export const createMigrationFiles = (
   );
 };
 
-export const getAllMigrations = (action: "up" | "down" | "all") => {
+export const getAllMigrations = async (
+  environment: ConfigEnvironment
+): Promise<MigrationDataDto[]> => {
   try {
     const currentDirectory = process.cwd();
     const config = getConfig();
@@ -56,43 +61,43 @@ export const getAllMigrations = (action: "up" | "down" | "all") => {
     const migrationsPath = path.join(currentDirectory, config.migrationsFolder);
     const migrationFolders = fs.readdirSync(migrationsPath);
 
-    const filesContent: string[] = [];
+    const migrations: MigrationDataDto[] = [];
 
     for (const folder of migrationFolders) {
+      const migration = await getMigrationByName(environment, folder);
       const folderPath = path.join(migrationsPath, folder);
-
       const isDirectory = fs.statSync(folderPath).isDirectory();
 
       if (isDirectory) {
-        let filePath: string;
+        const upFilePath = path.join(folderPath, `${folder}.up.sql`);
+        const downFilePath = path.join(folderPath, `${folder}.down.sql`);
 
-        if (action === "up" || action === "down") {
-          filePath = path.join(folderPath, `${folder}.${action}.sql`);
-        } else {
-          const upFilePath = path.join(folderPath, `${folder}.up.sql`);
-          const downFilePath = path.join(folderPath, `${folder}.down.sql`);
+        let upFileContent: string = "";
+        let downFileContent: string = "";
 
-          if (fs.existsSync(upFilePath)) {
-            const upFileContent = fs.readFileSync(upFilePath, "utf-8");
-            filesContent.push(upFileContent);
-          }
-
-          if (fs.existsSync(downFilePath)) {
-            const downFileContent = fs.readFileSync(downFilePath, "utf-8");
-            filesContent.push(downFileContent);
-          }
-
-          continue;
+        if (fs.existsSync(upFilePath)) {
+          upFileContent = fs.readFileSync(upFilePath, "utf-8");
         }
 
-        if (fs.existsSync(filePath)) {
-          const fileContent = fs.readFileSync(filePath, "utf-8");
-          filesContent.push(fileContent);
+        if (fs.existsSync(downFilePath)) {
+          downFileContent = fs.readFileSync(downFilePath, "utf-8");
         }
+
+        const migrationData: MigrationDataDto = new MigrationDataDto(
+          migration.id,
+          migration.uniqueId,
+          migration.migrationName,
+          migration.status,
+          migration.createdAt,
+          upFileContent,
+          downFileContent
+        );
+
+        migrations.push(migrationData);
       }
     }
 
-    return filesContent;
+    return migrations;
   } catch (error) {
     throw error;
   }
