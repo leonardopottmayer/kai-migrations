@@ -8,11 +8,11 @@ export const insertMigrationToAllEnvironments = async (
   migration: CreateMigrationDto
 ) => {
   const config = getConfig();
-  config.environments.forEach(async (element) => {
+  for (const element of config.environments) {
     const dbInstance = getDbInstance(element);
 
     try {
-      await dbInstance("migrations").insert({
+      await dbInstance(config.migrationsTable).insert({
         unique_id: migration.uniqueId,
         migration_name: migration.migrationName,
         status: migration.status,
@@ -23,7 +23,7 @@ export const insertMigrationToAllEnvironments = async (
     } finally {
       dbInstance.destroy();
     }
-  });
+  }
 };
 
 export const insertMigrationToSpecificEnvironment = async (
@@ -34,7 +34,7 @@ export const insertMigrationToSpecificEnvironment = async (
   const dbInstance = getDbInstance(environment);
 
   try {
-    await dbInstance("migrations").insert({
+    await dbInstance(config.migrationsTable).insert({
       unique_id: migration.uniqueId,
       migration_name: migration.migrationName,
       status: migration.status,
