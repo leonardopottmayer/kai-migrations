@@ -2,6 +2,7 @@ import { Command, program } from "commander";
 import { initCommand } from "./commands/init";
 import { createCommand } from "./commands/create";
 import { applyCommand } from "./commands/apply";
+import { synchronizeCommand } from "./commands/synchronize";
 
 export function setupCli(): Command {
   program.version("1.0.0").description("Descrição do seu CLI");
@@ -9,6 +10,7 @@ export function setupCli(): Command {
   initCommand(program);
   createCommand(program);
   applyCommand(program);
+  synchronizeCommand(program);
 
   return program;
 }

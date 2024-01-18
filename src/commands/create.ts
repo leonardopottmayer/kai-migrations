@@ -11,7 +11,7 @@ import {
   createMigrationFolder,
   getNewMigrationFolderPath,
 } from "../utils/migrationUtils";
-import { insertMigration } from "../utils/migrationsTableUtils";
+import { insertMigrationToAllEnvironments } from "../utils/migrationsTableUtils";
 import { CreateMigrationDto } from "../models/CreateMigrationDto";
 import { randomUUID } from "crypto";
 
@@ -19,7 +19,7 @@ export const createCommand = (program: Command): void => {
   program
     .command("create <migrationName>")
     .description("Create a new migration.")
-    .action((migrationName: string) => {
+    .action(async (migrationName: string) => {
       try {
         validateMigrationsFolderIntegrity();
         validateConfigMigrationsTableIntegrity();
@@ -45,7 +45,7 @@ export const createCommand = (program: Command): void => {
           createdAt: new Date(),
         };
 
-        insertMigration(migrationToInsert);
+        await insertMigrationToAllEnvironments(migrationToInsert);
 
         console.log(`Migration ${migrationName} successfully created.`);
       } catch (error) {

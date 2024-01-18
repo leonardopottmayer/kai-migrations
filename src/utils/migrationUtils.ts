@@ -4,6 +4,7 @@ import { getConfig } from "./configUtils";
 import { MigrationDataDto } from "../models/MigrationDataDto";
 import { getMigrationByName } from "./migrationsTableUtils";
 import { ConfigEnvironment } from "../models/ConfigEnvironment";
+import { LocalMigrationDto } from "../models/LocalMigrationDto";
 
 export const buildMigrationName = (inputName: string): string => {
   const currentTimestamp = Date.now();
@@ -89,6 +90,51 @@ export const getAllMigrations = async (
           migration.migrationName,
           migration.status,
           migration.createdAt,
+          upFileContent,
+          downFileContent
+        );
+
+        migrations.push(migrationData);
+      }
+    }
+
+    return migrations;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getLocalMigrations = async (): Promise<LocalMigrationDto[]> => {
+  try {
+    const currentDirectory = process.cwd();
+    const config = getConfig();
+
+    const migrationsPath = path.join(currentDirectory, config.migrationsFolder);
+    const migrationFolders = fs.readdirSync(migrationsPath);
+
+    const migrations: LocalMigrationDto[] = [];
+
+    for (const folder of migrationFolders) {
+      const folderPath = path.join(migrationsPath, folder);
+      const isDirectory = fs.statSync(folderPath).isDirectory();
+
+      if (isDirectory) {
+        const upFilePath = path.join(folderPath, `${folder}.up.sql`);
+        const downFilePath = path.join(folderPath, `${folder}.down.sql`);
+
+        let upFileContent: string = "";
+        let downFileContent: string = "";
+
+        if (fs.existsSync(upFilePath)) {
+          upFileContent = fs.readFileSync(upFilePath, "utf-8");
+        }
+
+        if (fs.existsSync(downFilePath)) {
+          downFileContent = fs.readFileSync(downFilePath, "utf-8");
+        }
+
+        const migrationData: LocalMigrationDto = new LocalMigrationDto(
+          folder,
           upFileContent,
           downFileContent
         );

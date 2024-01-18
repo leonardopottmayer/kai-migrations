@@ -23,6 +23,8 @@ export const applyCommand = (program: Command): void => {
         validateMigrationsTableIntegrity(foundEnv);
         const migrations: MigrationDataDto[] = await getAllMigrations(foundEnv);
 
+        migrations.sort(compareMigrationName);
+
         const firstMigrationWithPendingStatus = migrations.find(
           (x) => x.status == 1
         );
@@ -53,4 +55,20 @@ export const applyCommand = (program: Command): void => {
 
       return;
     });
+};
+
+const compareMigrationName = (
+  a: MigrationDataDto,
+  b: MigrationDataDto
+): number => {
+  const migrationNameA = a.migrationName.toUpperCase();
+  const migrationNameB = b.migrationName.toUpperCase();
+
+  if (migrationNameA < migrationNameB) {
+    return -1;
+  }
+  if (migrationNameA > migrationNameB) {
+    return 1;
+  }
+  return 0;
 };

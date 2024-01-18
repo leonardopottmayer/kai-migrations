@@ -4,23 +4,47 @@ import { MigrationDto } from "../models/MigrationDto";
 import { getConfig } from "./configUtils";
 import { getDbInstance } from "./dbConnectionUtils";
 
-export const insertMigration = async (migration: CreateMigrationDto) => {
+export const insertMigrationToAllEnvironments = async (
+  migration: CreateMigrationDto
+) => {
   const config = getConfig();
   config.environments.forEach(async (element) => {
     const dbInstance = getDbInstance(element);
 
-    await dbInstance("migrations")
-      .insert({
+    try {
+      await dbInstance("migrations").insert({
         unique_id: migration.uniqueId,
         migration_name: migration.migrationName,
         status: migration.status,
         created_at: migration.createdAt || new Date(),
-      })
-      .then((x) => {})
-      .finally(() => {
-        dbInstance.destroy();
       });
+    } catch (error) {
+      throw error;
+    } finally {
+      dbInstance.destroy();
+    }
   });
+};
+
+export const insertMigrationToSpecificEnvironment = async (
+  environment: ConfigEnvironment,
+  migration: CreateMigrationDto
+) => {
+  const config = getConfig();
+  const dbInstance = getDbInstance(environment);
+
+  try {
+    await dbInstance("migrations").insert({
+      unique_id: migration.uniqueId,
+      migration_name: migration.migrationName,
+      status: migration.status,
+      created_at: migration.createdAt || new Date(),
+    });
+  } catch (error) {
+    throw error;
+  } finally {
+    dbInstance.destroy();
+  }
 };
 
 export const getMigrationsStatus = async (environmentName: string) => {};

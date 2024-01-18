@@ -36,7 +36,12 @@ export const createConfigFile = (
   const initialEnvironment = new ConfigEnvironment(
     "demo",
     "mysql://user:password@host:port/database_name",
-    "mysql2"
+    "mysql2",
+    "localhost",
+    3306,
+    "root",
+    "admin",
+    "test_database"
   );
 
   const kaiConfig = new KaiConfig(

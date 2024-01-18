@@ -72,10 +72,20 @@ export const validateConfigEnvironmentsIntegrity = (): void => {
         !environment.connectionString ||
         environment.connectionString.trim() === "" ||
         !environment.databaseType ||
-        environment.databaseType.trim() === ""
+        environment.databaseType.trim() === "" ||
+        !environment.host ||
+        environment.host.trim() === "" ||
+        !environment.port ||
+        isNaN(environment.port) ||
+        !environment.user ||
+        environment.user.trim() === "" ||
+        !environment.password ||
+        environment.password.trim() === "" ||
+        !environment.database ||
+        environment.database.trim() === ""
       ) {
         throw new Error(
-          "Invalid environment name, connection string, or database type in config file."
+          "Invalid environment configuration in config file. Please provide values for environmentName, connectionString, databaseType, host, port, user, password, and database."
         );
       }
 
