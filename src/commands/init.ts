@@ -22,7 +22,11 @@ export const initCommand = (program: Command): void => {
         console.log(`Project ${projectName} was successfully created.`);
       } catch (error) {
         console.error((error as Error).message);
+      } finally {
+        process.exit(0);
       }
+
+      return;
     });
 };
 

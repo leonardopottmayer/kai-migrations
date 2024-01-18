@@ -28,10 +28,10 @@ export const applyCommand = (program: Command): void => {
         );
 
         if (firstMigrationWithPendingStatus) {
-          migrations.forEach((element) => {
+          for (const element of migrations) {
             if (element.status == 1) {
-              executeSqlScript(foundEnv, element.upSqlContent);
-              updateMigrationStatus(
+              await executeSqlScript(foundEnv, element.upSqlContent);
+              await updateMigrationStatus(
                 foundEnv,
                 element.id,
                 element.migrationName,
@@ -41,12 +41,16 @@ export const applyCommand = (program: Command): void => {
                 `Migration ${element.migrationName} applied successfully.`
               );
             }
-          });
+          }
         } else {
           console.log("No pending migrations.");
         }
       } catch (error) {
         console.error(error);
+      } finally {
+        process.exit(0);
       }
+
+      return;
     });
 };

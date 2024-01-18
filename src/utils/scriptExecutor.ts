@@ -18,17 +18,17 @@ export const executeSqlScripts = (
   });
 };
 
-export const executeSqlScript = (
+export const executeSqlScript = async (
   environment: ConfigEnvironment,
   sqlScript: string
-): void => {
+): Promise<void> => {
   const db = getDbInstance(environment);
 
-  db.raw(sqlScript)
-    .catch((error) => {
-      throw error;
-    })
-    .finally(() => {
-      db.destroy();
-    });
+  try {
+    await db.raw(sqlScript);
+  } catch (error) {
+    throw error;
+  } finally {
+    db.destroy();
+  }
 };

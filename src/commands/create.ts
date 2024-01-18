@@ -50,7 +50,11 @@ export const createCommand = (program: Command): void => {
         console.log(`Migration ${migrationName} successfully created.`);
       } catch (error) {
         console.error((error as Error).message);
+      } finally {
+        process.exit(0);
       }
+
+      return;
     });
 };
 
